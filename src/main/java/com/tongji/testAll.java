@@ -12,28 +12,30 @@ import java.util.concurrent.TimeUnit;
 
 public class testAll{
 
-    private static WebDriver driver;
+    private static WebDriver driver = null;
     String projectName="project"+(new Random().nextInt(10000));
-    @BeforeClass
+//    @BeforeClass
     public void beforeClass()throws InterruptedException{
-
-        System.setProperty("webdriver.gecko.driver","src/main/resources/geckodriver.exe");
+//          没有打包时的目录
+//        System.setProperty("webdriver.gecko.driver","src/main/resources/geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver","classes/geckodriver.exe");
         driver=new FirefoxDriver();
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
     }
 
-    @Test()
+//    @Test()
     public void testAll() throws Exception{
-
+        beforeClass();
         String url="http://localhost:8083/testlink/login.php";
         driver.get(url);
         Assert.assertTrue(driver.getTitle().indexOf("TestLink") > -1);
 
     }
 
-    @Test(dependsOnMethods="testAll")
-    public void testCreateProject()throws InterruptedException{
+//    @Test(dependsOnMethods="testAll")
+    public void testCreateProject()throws Exception{
+        testAll();
         driver.findElement(By.id("login")).clear();
         driver.findElement(By.id("login")).sendKeys("admin");
         driver.findElement(By.name("tl_password")).clear();
@@ -58,9 +60,9 @@ public class testAll{
 
     }
 
-    @Test(dependsOnMethods={"testCreateProject","testAll"})
-    public void testDeleteProject()  throws InterruptedException{
-
+//    @Test(dependsOnMethods={"testAll","testCreateProject"})
+    public void testDeleteProject()  throws Exception{
+        testCreateProject();
         driver.get("http://localhost:8083/testlink/lib/project/projectView.php");
         Thread.sleep(1000);
         System.out.println(projectName);
@@ -69,6 +71,10 @@ public class testAll{
         Thread.sleep(1000);
         driver.findElement(By.id("ext-gen20")).click();
 
+    }
+
+    public static void main(String[] args) throws Exception{
+        new testAll().testDeleteProject();
     }
 }
 
